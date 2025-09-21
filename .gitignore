@@ -1,0 +1,21 @@
+# Python virtual environment
+.venv/
+venv/
+.env/
+env/
+
+# uv lock file
+uv.lock
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Editor-specific files (e.g., VS Code)
+.vscode/
+
+# Operating system specific files
+.DS_Store
+Thumbs.db
