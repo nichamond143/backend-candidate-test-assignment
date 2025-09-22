@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.dialects.postgresql import UUID
-import uuid
+from sqlalchemy.orm import relationship
 from database.core import Base
 
 class User(Base):
@@ -10,6 +9,8 @@ class User(Base):
     name = Column(String, index=True)
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
+
+    posts = relationship("Post", back_populates="user")
 
     def __repr__(self):
         return f"<Post(name='{self.name}', email={self.email})>"

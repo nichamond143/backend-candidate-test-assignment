@@ -9,7 +9,6 @@ class Settings(BaseSettings):
     auth0_algorithms: str
     auth0_client_id: str
     auth0_client_secret: str
-    app_secret_key: str
 
     class Config:
         env_file = ".env"

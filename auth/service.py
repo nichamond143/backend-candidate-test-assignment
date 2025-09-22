@@ -57,7 +57,7 @@ def validate(
     token: Annotated[HTTPAuthorizationCredentials, Depends(token_auth_scheme)]
 ):
     if token is None:
-        raise UnauthorizedException("No token provided")
+        raise UnauthorizedException()
 
     try:
         # extract unverified header
@@ -66,7 +66,7 @@ def validate(
         # find correct key
         public_key = find_public_key(unverified_token["kid"])
         if public_key is None:
-            raise UnauthorizedException("Public Key not Found")
+            raise UnauthorizedException()
 
         # construct usable JWK
         key = jwk.construct(public_key)
@@ -87,5 +87,5 @@ def validate(
         jwt.JWTError,
         jwt.JWTClaimsError,
         jwt.JWSError
-    ):
-        raise UnauthenticatedException("Invalid or expired token")
+    ) as error:
+        raise UnauthenticatedException(str(error))

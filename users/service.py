@@ -1,13 +1,51 @@
 from database.core import DbSession
 from . import model
 from entities.user import User
+from exceptions import SQLErrorException, map_sqlalchemy_error
 
 def create_user(db: DbSession, user: model.UserCreate) -> model.UserResponse:
     db_user = User(**user.model_dump())
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+    try: 
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+    except Exception as error:
+        status, message = map_sqlalchemy_error(error)
+        raise SQLErrorException(status, f'{message}')
 
 def list_users(db: DbSession, skip: int = 0, limit: int = 3) -> list[model.UserResponse]:
-    return db.query(User).offset(skip).limit(limit).all()
+    try: 
+        return db.query(User).offset(skip).limit(limit).all()
+    except Exception as error:
+        status, message = map_sqlalchemy_error(error)
+        raise SQLErrorException(status, f'{message}')
+
+def update_user(db: DbSession, user_id: int, updated_user: model.UserUpdate) -> model.UserResponse:
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        raise SQLErrorException(404, "User not found")
+    
+    for key, value in updated_user.model_dump(exclude_unset=True).items():
+        setattr(db_user, key, value)
+
+    try:
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+    except Exception as error:
+        status, message = map_sqlalchemy_error(error)
+        raise SQLErrorException(status, f'{message}')
+
+def delete_user(db: DbSession, user_id: int) -> list[model.UserResponse]:
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        raise SQLErrorException(404, "User not found")
+    try:
+        db.delete(db_user)
+        db.commit()
+    except Exception as error:
+        status, message = map_sqlalchemy_error(error)
+        raise SQLErrorException(status, f'{message}')
+    
+    return db.query(User).all()

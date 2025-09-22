@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-from ..database.core import Base, relationship
+from database.core import Base
 
 class Post(Base):
     __tablename__ = "posts"

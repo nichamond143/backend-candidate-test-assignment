@@ -13,11 +13,12 @@ router = APIRouter(
 )
 
 @router.post("/create", response_model=model.UserResponse)
-def create(
+def create_users(
     user: model.UserCreate,
     db: DbSession,
     user_claims: UserClaims = Depends(validate)
 ):
+    '''Create user data'''
     return service.create_user(db, user)
 
 
@@ -30,3 +31,23 @@ def list_users(
 ):
     """List all users with pagination"""
     return service.list_users(db, skip=skip, limit=limit)
+
+
+@router.put("/update", response_model=model.UserResponse)
+def update_users(
+    db: DbSession,
+    user_id: int,
+    updated_user: model.UserUpdate,
+    user_claims: UserClaims = Depends(validate)
+):
+    '''Update user with user id'''
+    return service.update_user(db, user_id, updated_user)
+
+@router.delete("/delete")
+def delete_user(
+    db: DbSession,
+    user_id: int,
+    user_claim: UserClaims = Depends(validate)
+):
+    '''Delete user with user id'''
+    return service.delete_user(db, user_id)
