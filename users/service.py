@@ -1,3 +1,4 @@
+from sqlalchemy import desc
 from database.core import DbSession
 from . import model
 from entities.user import User
@@ -16,7 +17,7 @@ def create_user(db: DbSession, user: model.UserCreate) -> model.UserResponse:
 
 def list_users(db: DbSession, skip: int = 0, limit: int = 3) -> list[model.UserResponse]:
     try: 
-        return db.query(User).offset(skip).limit(limit).all()
+        return db.query(User).order_by(desc(User.id)).offset(skip).limit(limit).all()
     except Exception as error:
         status, message = map_sqlalchemy_error(error)
         raise SQLErrorException(status, f'{message}')

@@ -2,10 +2,18 @@ from typing import Annotated
 from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
+import config
+import urllib
 
-DATABASE_URI = "sqlite:///./database.db"
+config = config.get_settings()
 
-engine = create_engine(DATABASE_URI, connect_args={"check_same_thread": False})
+if config.db_backend == 'SQLITE':
+    engine = create_engine(config.sqlite, connect_args={"check_same_thread": False})
+else:
+    CONNECTION_STRING = f"Driver={config.azure_db_driver};Server=tcp:{config.azure_db_host},1433;Database={config.azure_db_name};UID={config.azure_db_user};PWD={config.azure_db_pwd}"
+    params = urllib.parse.quote(CONNECTION_STRING)
+    url = "mssql+pyodbc:///?odbc_connect={0}&charset=UTF8".format(params)
+    engine = create_engine(url)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

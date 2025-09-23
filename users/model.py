@@ -1,5 +1,7 @@
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel
+
+from posts.model import PostResponse
 
 class UserBase(BaseModel):
     name: str
@@ -10,6 +12,11 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     pass
 
+class UserUpdate(UserBase):
+    name: Optional[str]
+    username: Optional[str]
+    email: Optional[str]
+
 # Pydantic model for response data
 class UserResponse(UserBase):
     id: int
@@ -17,7 +24,5 @@ class UserResponse(UserBase):
     class Config:
         from_attributes = True
 
-class UserUpdate(UserBase):
-    name: Optional[str]
-    username: Optional[str]
-    email: Optional[str]
+class UserDetailResponse(UserResponse):
+    posts: List[PostResponse]

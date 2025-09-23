@@ -30,5 +30,5 @@ def map_sqlalchemy_error(error: Exception) -> tuple[int, str]:
     elif isinstance(error, DisconnectionError):
         return 503, "Temporary DB outage"
     else:
-        return 500, "Unexpected Error"
+        return 500, str(error)
         

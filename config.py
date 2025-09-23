@@ -9,6 +9,13 @@ class Settings(BaseSettings):
     auth0_algorithms: str
     auth0_client_id: str
     auth0_client_secret: str
+    db_backend: str
+    sqlite: str
+    azure_db_driver: str
+    azure_db_host: str
+    azure_db_name: str
+    azure_db_user: str
+    azure_db_pwd: str
 
     class Config:
         env_file = ".env"

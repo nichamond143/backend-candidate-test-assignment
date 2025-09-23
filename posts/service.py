@@ -1,7 +1,7 @@
 from database.core import DbSession
 from . import model
 from entities import Post, User
-from sqlalchemy import func
+from sqlalchemy import desc, func
 from exceptions import SQLErrorException, map_sqlalchemy_error
 
 def search_post(db: DbSession, username: str) -> list[model.PostResponse]:
@@ -9,8 +9,7 @@ def search_post(db: DbSession, username: str) -> list[model.PostResponse]:
         user = db.query(User).filter(func.lower(User.username) == username.lower()).first()
         if not user:
             raise SQLErrorException(404, "User not found")
-        posts = db.query(Post).filter(Post.user_id == user.id).all()
-        return posts
+        return user.posts
     except Exception as error:
         status, message = map_sqlalchemy_error(error)
         raise SQLErrorException(status, f'{message}')
@@ -29,9 +28,9 @@ def add_post(db: DbSession, post: model.PostCreate) -> model.PostResponse:
         status, message = map_sqlalchemy_error(error)
         raise SQLErrorException(status, f'{message}')
 
-def list_post(db: DbSession) -> list[model.PostResponse]:
+def list_post(db: DbSession, skip: int = 0, limit: int = 3) -> list[model.PostResponse]:
     try: 
-        return db.query(Post).all()
+        return db.query(Post).order_by(desc(Post.id)).offset(skip).limit(limit).all()
     except Exception as error:
         status, message = map_sqlalchemy_error(error)
         raise SQLErrorException(status, f'{message}')
