@@ -4,9 +4,6 @@ venv/
 .env/
 env/
 
-# uv lock file
-uv.lock
-
 # Python cache files
 __pycache__/
 *.pyc
