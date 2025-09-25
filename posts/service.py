@@ -3,6 +3,7 @@ from . import model
 from entities import Post, User
 from sqlalchemy import desc, func
 from exceptions import SQLErrorException, map_sqlalchemy_error
+from redis_client.client import r
 
 def search_post(db: DbSession, username: str) -> list[model.PostResponse]:
     try:
@@ -23,6 +24,8 @@ def add_post(db: DbSession, post: model.PostCreate) -> model.PostResponse:
         db.add(db_post)
         db.commit()
         db.refresh(db_post)
+        r.xadd("event-stream", {"message": f"Post created"})
+
         return db_post
     except Exception as error:
         status, message = map_sqlalchemy_error(error)
@@ -45,6 +48,7 @@ def update_post(db: DbSession, post_id: int, updated_post: model.PostUpdate) -> 
     try: 
         db.commit()
         db.refresh(db_post)
+        r.xadd("event-stream", {"message": f"Post updated"})
         return db_post
     except Exception as error:
         status, message = map_sqlalchemy_error(error)
@@ -57,6 +61,7 @@ def delete_post(db: DbSession, post_id: int) -> list[model.PostResponse]:
     try:
         db.delete(db_post)
         db.commit()
+        r.xadd("event-stream", {"message": f"Post deleted"})
         return db.query(Post).all()
     except Exception as error:
         status, message = map_sqlalchemy_error(error)

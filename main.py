@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import redis_client
 
 from database.core import engine, Base
 from api import register_routes

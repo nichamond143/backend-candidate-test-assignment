@@ -3,6 +3,7 @@ from database.core import DbSession
 from . import model
 from entities.user import User
 from exceptions import SQLErrorException, map_sqlalchemy_error
+from redis_client.client import r
 
 def create_user(db: DbSession, user: model.UserCreate) -> model.UserResponse:
     db_user = User(**user.model_dump())
@@ -10,6 +11,9 @@ def create_user(db: DbSession, user: model.UserCreate) -> model.UserResponse:
         db.add(db_user)
         db.commit()
         db.refresh(db_user)
+
+        r.xadd("event-stream", {"message": f"User created"})
+
         return db_user
     except Exception as error:
         status, message = map_sqlalchemy_error(error)
@@ -33,6 +37,8 @@ def update_user(db: DbSession, user_id: int, updated_user: model.UserUpdate) -> 
     try:
         db.commit()
         db.refresh(db_user)
+
+        r.xadd("event-stream", {"message": f"User updated"})
         return db_user
     except Exception as error:
         status, message = map_sqlalchemy_error(error)
@@ -45,6 +51,7 @@ def delete_user(db: DbSession, user_id: int) -> list[model.UserResponse]:
     try:
         db.delete(db_user)
         db.commit()
+        r.xadd("event-stream", {"message": f"User deleted"})
     except Exception as error:
         status, message = map_sqlalchemy_error(error)
         raise SQLErrorException(status, f'{message}')
