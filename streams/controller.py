@@ -10,4 +10,4 @@ router = APIRouter(
 
 @router.get("/events")
 async def stream_events():
-    return StreamingResponse(service.streams_event(), media_type="text/event-stream")
+    return StreamingResponse(service.generate_event(), media_type="text/event-stream")

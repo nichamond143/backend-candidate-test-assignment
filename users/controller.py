@@ -6,6 +6,8 @@ from . import model
 from . import service
 from auth.service import validate
 from auth.model import UserClaims
+from faststream.redis import RedisBroker
+from redis_client.client import get_broker
 
 router = APIRouter(
     prefix="/users",
@@ -13,13 +15,14 @@ router = APIRouter(
 )
 
 @router.post("/create", response_model=model.UserResponse)
-def create_users(
+async def create_users(
     user: model.UserCreate,
     db: DbSession,
+    broker: RedisBroker = Depends(get_broker),
     user_claims: UserClaims = Depends(validate)
 ):
     '''Create user data'''
-    return service.create_user(db, user)
+    return await service.create_user(db, user, broker)
 
 
 @router.get("/list", response_model=List[model.UserResponse])
